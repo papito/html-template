@@ -30,8 +30,8 @@ namespace tmpl {
 // table cell
 //----------------------------------------------------------------------------
 row_cell_s::row_cell_s() {
-// we are not creating a table object yet, just because we may not need it in
-// the first place.
+    // we are not creating a table object yet, just because we may not need it in
+    // the first place.
     p_table = 0;
 }
 //----------------------------------------------------------------------------
@@ -65,25 +65,25 @@ row_cell_s & row_cell_s::operator= (const loop_s & arg) {
 }
 
 //----------------------------------------------------------------------------
-// table row
+    // table row
 //----------------------------------------------------------------------------
 
 row_cell_s & row_s::operator() (const std::string & str_name) {
     string str_name_uc = str_name;
-// uppercase
+    // uppercase
     str_name_uc = str_name;
     uc( str_name_uc );
 
-// create new table cell
+    // create new table cell
     row_cell_s cell;
-// insert cell into row container
+    // insert cell into row container
     cells_c.insert(std::make_pair(str_name_uc, cell));
-// return cell so that we can assign a value to it
+    // return cell so that we can assign a value to it
     return cells_c[str_name_uc];
 }
 
 //----------------------------------------------------------------------------
-// tag type object
+    // tag type object
 //----------------------------------------------------------------------------
 tag_type_s::tag_type_s() {
     str_tag_class = "";
@@ -102,7 +102,7 @@ tag_type_s::tag_type_s(const std::string & arg_type,
 //----------------------------------------------------------------------------
 
 bool tag_type_s::operator== (const tag_type_s & rhs) const {
-// two tags are equal if they are of the same CLASS, so ELSE is equal to IF
+    // two tags are equal if they are of the same CLASS, so ELSE is equal to IF
     return (str_tag_class == rhs.str_tag_class);
 }
 //----------------------------------------------------------------------------
@@ -112,7 +112,7 @@ bool tag_type_s::operator!= (const tag_type_s & rhs) const {
 }
 
 //----------------------------------------------------------------------------
-// tag object
+    // tag object
 //----------------------------------------------------------------------------
 tag_s::tag_s() {
     Reset();
@@ -135,7 +135,7 @@ tag_s::tag_s(const tag_type_s & arg_type) {
 //----------------------------------------------------------------------------
 
 void tag_s::Shift(const ptrdiff_t i_offset) {
-// do not shit an empty tag
+    // do not shit an empty tag
     if ( begin == string::npos ) return;
 
     begin = static_cast<size_t>(begin + i_offset);
@@ -144,7 +144,7 @@ void tag_s::Shift(const ptrdiff_t i_offset) {
 //----------------------------------------------------------------------------
 
 const bool tag_s::Empty() const {
-// tag is empty if none of its properties have been defined
+    // tag is empty if none of its properties have been defined
     return (
                str_name.empty() == true
                && b_termination == false
@@ -159,7 +159,7 @@ const size_t tag_s::Length() const {
 //----------------------------------------------------------------------------
 
 bool tag_s::operator< (const tag_s & rhs) const {
-// compare start positions of two tags to find which is further up
+    // compare start positions of two tags to find which is further up
     return begin < rhs.begin;
 }
 //----------------------------------------------------------------------------
@@ -205,10 +205,10 @@ block_s::block_s() {
 
 void block_s::Shift(const ptrdiff_t i_offset, const size_t ui_start,
                     const size_t ui_end) {
-// do nothing if the block is no longer in the set
+    // do nothing if the block is no longer in the set
     if ( Deleted() == true ) return;
 
-// store all tags in a container, for easy iteration
+    // store all tags in a container, for easy iteration
     vector <tag_s*> tags_c;
     tags_c.push_back(&tag_open);
     tags_c.push_back(&tag_split);
@@ -262,8 +262,8 @@ bool block_s::operator!= (const block_s & rhs) const {
 //----------------------------------------------------------------------------
 
 bool block_s::operator> (const block_s & rhs) const {
-// block is greater than another block if the start of the block is after the
-// close of another block
+    // block is greater than another block if the start of the block is after the
+    // close of another block
     return (tag_open > rhs.tag_close);
 }
 //----------------------------------------------------------------------------
@@ -315,14 +315,14 @@ const std::string & html_template::Process() {
         throw_exception(ex);
     }
 
-// read in the file
+    // read in the file
     std::stringstream oss;
     oss << in_stream.rdbuf();
     str_tmpl_txt = oss.str();
     in_stream.close();
 
-// this will expand the include files, and build the map of all the variables -
-// once if there are no includes or (1 + # of includes)
+    // this will expand the include files, and build the map of all the variables -
+    // once if there are no includes or (1 + # of includes)
     expand_includes();
 
     str_tmpl_txt_cpy = str_tmpl_txt;
@@ -331,7 +331,7 @@ const std::string & html_template::Process() {
     print_block_map(block_map);
 #endif
 
-// tag iterator
+    // tag iterator
     tag_map_t::const_iterator itr_tag;
 
     // check that every tag is part of a block
@@ -393,7 +393,7 @@ const std::string & html_template::Process() {
 //----------------------------------------------------------------------------
 
 void html_template::print_block_map(block_map_t & r_block_map) {
-// block iterator
+    // block iterator
     block_map_t::const_iterator itr_block = r_block_map.begin();
 
     cout << "\n*************************************************"
@@ -435,7 +435,7 @@ void html_template::print_tag_map() {
 //! tag shifting with it. Use the block map for that.
 //!
 
-// tag iterator
+    // tag iterator
     tag_map_t::const_iterator itr_tag;
 
     cout << "\n*************************************************"
@@ -471,20 +471,20 @@ html_template::~html_template() {
 
 cls_variable & html_template::operator() (const std::string arg_var_name) {
     string arg_var_name_uc = arg_var_name;
-// uppercase
+    // uppercase
     uc(arg_var_name_uc);
 
-// create variable
+    // create variable
     cls_variable var(arg_var_name_uc);
 
-// save it
+    // save it
     variables_c[arg_var_name_uc] = var;
 
 #ifdef DEBUG3
     cout << "creating variable '" << arg_var_name_uc << "'" << endl;
 #endif
 
-// return the variable so a value can be assigned to it
+    // return the variable so a value can be assigned to it
     return variables_c[arg_var_name_uc];
 }
 //----------------------------------------------------------------------------
@@ -503,11 +503,11 @@ html_template::Get_Tag_Type_Count(const tag_type_s & tag_type) const {
 // template class private
 //----------------------------------------------------------------------------
 void html_template::init() {
-//
-// declare all known tag types
-//
-// the last boolean flag defines if the tag is a block (has open and close
-// tags)
+    //
+    // declare all known tag types
+    //
+    // the last boolean flag defines if the tag is a block (has open and close
+    // tags)
     tag_types_c["SIMPLE"]  = tag_type_s("VAR",     "VAR");
     tag_types_c["LOOP"]    = tag_type_s("LOOP",    "LOOP", true);
     tag_types_c["IF"]      = tag_type_s("IF",      "IF",   true);
@@ -515,8 +515,8 @@ void html_template::init() {
     tag_types_c["UNLESS"]  = tag_type_s("UNLESS",  "IF",   true);
     tag_types_c["INCLUDE"] = tag_type_s("INCLUDE", "INCLUDE");
 
-// create the tag strings we expect to see in a document, based on the tag
-// types
+    // create the tag strings we expect to see in a document, based on the tag
+    // types
     tag_types_t::const_iterator itr_tag_type = tag_types_c.begin();
 
     for ( ; itr_tag_type != tag_types_c.end(); ++itr_tag_type ) {
@@ -526,7 +526,7 @@ void html_template::init() {
         tag_strings_c[ str_tag_type_ref ] = 1;
     }
 
-// populate reserved words container (helps us during parsing)
+    // populate reserved words container (helps us during parsing)
     reserved_words_c[ "ESCAPE" ]     = 1;
     reserved_words_c[ "ESC" ]        = 1;
     reserved_words_c[ "HTML" ]       = 1;
@@ -541,7 +541,7 @@ void html_template::init() {
 void html_template::expand_includes() {
     build_block_map();
 
-// block iterator
+    // block iterator
     block_map_t::const_iterator itr_block;
 
     itr_block = block_map.begin();
@@ -619,7 +619,7 @@ void html_template::expand_includes() {
 void html_template::process_conditionals(block_map_t & r_block_map,
         std::string & str_text,
         variables_t & r_variables_c) {
-// block iterator
+    // block iterator
     block_map_t::iterator itr_block = r_block_map.begin();
 
     for (; itr_block != r_block_map.end(); ++itr_block) {
@@ -892,7 +892,7 @@ void html_template::process_loop(const block_s & block,
     cout << "processing loop: "<< block.Get_Name() << endl;
 #endif
 
-// Get the table variable for this block.
+    // Get the table variable for this block.
     variables_t::iterator itr_var = r_variables_c.find( block.Get_Name() );
     loop_s local_table;
 
@@ -910,20 +910,20 @@ void html_template::process_loop(const block_s & block,
     const size_t content_end   = block.Get_Close_Tag().Start() - 1;
     const size_t content_len   = content_end - content_start + 1;
 
-// get loop text content
+    // get loop text content
     string str_row_content = str_text.substr(content_start, content_len);
 
-//
-// go through all variables and expand the ones within this loop.
-//
+    //
+    // go through all variables and expand the ones within this loop.
+    //
 
-// create a map of variables that we will re-use for each row
+    // create a map of variables that we will re-use for each row
     block_map_t loop_block_map;
 
     block_map_t::iterator itr_block =
         find(r_block_map.begin(), r_block_map.end(), block);
 
-// move to next block inside this one
+    // move to next block inside this one
     advance(itr_block, 1);
 
     for (; itr_block != r_block_map.end(); ++itr_block) {
@@ -948,15 +948,15 @@ void html_template::process_loop(const block_s & block,
 #endif
     }
 
-// get row iterator
+    // get row iterator
     loop_s::rows_t rows = local_table.Get_Rows();
     loop_s::rows_t::const_iterator itr_row = rows.begin();
 
-// convenience variables for conext variable math
+    // convenience variables for conext variable math
     const unsigned int ui_total_rows = local_table.Get_Rows().size();
     unsigned int ui_current_row      = 0;
 
-// our final table content
+    // our final table content
     string str_replace_with;
 
     // for each table row
@@ -1062,15 +1062,15 @@ void html_template::process_loop(const block_s & block,
         str_replace_with.append("\n");
     }
 
-// erase the loop and nested blocks from the map - they are not to be
-// processed by anything else
+    // erase the loop and nested blocks from the map - they are not to be
+    // processed by anything else
     delete_blocks(block.Get_Open_Tag(), block.Get_Close_Tag(), r_block_map);
 
-//
-// replace the whole block with loop output
-//
+    //
+    // replace the whole block with loop output
+    //
 
-// shift tags within this block
+    // shift tags within this block
     shift_tags(
         str_text,
         r_block_map,
@@ -1079,7 +1079,7 @@ void html_template::process_loop(const block_s & block,
         block.Get_Close_Tag().Start()
     );
 
-// shift tags after this block
+    // shift tags after this block
     const ptrdiff_t i_offset = get_offset(block_len, str_replace_with);
 
     shift_tags(
@@ -1118,7 +1118,7 @@ bool html_template::evaluate(cls_variable & var) const {
             val_string.erase();
     }
 
-// delete a single dot, if any (assuming this is a double)
+    // delete a single dot, if any (assuming this is a double)
     size_t dot_pos = val_string.find(".");
 
     if ( dot_pos != string::npos ) {
@@ -1128,7 +1128,7 @@ bool html_template::evaluate(cls_variable & var) const {
     // if there is another dot - this is NOT a number, and is TRUE
     if ( val_string.find(".") != string::npos ) return true;
 
-// delete all zeros
+    // delete all zeros
     size_t zero_pos = val_string.find("0");
 
     while ( zero_pos != string::npos ) {
@@ -1229,7 +1229,7 @@ void html_template::build_block_map() {
     build_tag_map();
     block_map.clear();
 
-// glue tags together into blocks
+    // glue tags together into blocks
     tag_map_t::const_iterator itr_tag = tag_map.begin();
 
     // Iterate through tags and create tag blocks
@@ -1346,7 +1346,7 @@ tag_s html_template::find_tag() const {
     tag_s tag;
     size_t start_pos = 0;
 
-// find the last tag added
+    // find the last tag added
     tag_map_t::const_iterator itr_last_elem = std::max_element(
                 tag_map.begin(), tag_map.end()
             );
@@ -1361,7 +1361,7 @@ tag_s html_template::find_tag() const {
         return tag; // this tag object is EMPTY
     }
 
-// find the opening bracket
+    // find the opening bracket
     size_t pos_tag_open = str_tmpl_txt.rfind('<', pos_var - 1);
 
     // NO bracket found
@@ -1372,7 +1372,7 @@ tag_s html_template::find_tag() const {
         throw_exception(error);
     }
 
-// find the closing bracket after the templare variable prefix
+    // find the closing bracket after the templare variable prefix
     size_t pos_tag_close = str_tmpl_txt.find('>', pos_var + 1);
 
     if ( pos_tag_close == string::npos ) {
@@ -1382,11 +1382,11 @@ tag_s html_template::find_tag() const {
         throw_exception(error);
     }
 
-// this is our complete tag
+    // this is our complete tag
     string str_compl_tag
         = str_tmpl_txt.substr(pos_tag_open, pos_tag_close - pos_tag_open + 1);
 
-// get a ready-to-use tag object, catching any syntax exceptions
+    // get a ready-to-use tag object, catching any syntax exceptions
     try {
         tag = parse_tag( str_compl_tag );
     } catch ( std::exception & ex ) {
@@ -1396,9 +1396,9 @@ tag_s html_template::find_tag() const {
         throw_exception( error );
     }
 
-// Set other tag parameters the tag parsing logic is not required for (since
-// the parsing logic is not aware of the global document context - it just
-// deals with one tag at a time).
+    // Set other tag parameters the tag parsing logic is not required for (since
+    // the parsing logic is not aware of the global document context - it just
+    // deals with one tag at a time).
     tag.Set_Start(pos_tag_open);
     tag.Set_Stop(pos_tag_close);
 
@@ -1425,7 +1425,7 @@ const std::string html_template::truncate(const std::string & arg) const {
 //----------------------------------------------------------------------------
 
 const tag_s html_template::parse_tag( const std::string & arg ) const {
-// kill any return characters and whatnot
+    // kill any return characters and whatnot
     const string str = truncate( arg );
 
     tag_s tag; // empty for now
@@ -1567,8 +1567,8 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
         tag.Set_Is_Splitter( true );
     }
 
-// we know what the tag type is as a STRING, but we have to convert it into
-// a tag_s struct
+    // we know what the tag type is as a STRING, but we have to convert it into
+    // a tag_s struct
     tag_types_t::const_iterator itr_tag_type = tag_types_c.begin();
     tag_type_s tag_type;
 
@@ -1632,7 +1632,7 @@ void html_template::shift_tags(const std::string & str_in,
                                const ptrdiff_t i_offset,
                                const size_t ui_start,
                                size_t ui_end /*=string::npos*/) {
-// if no end position specified, select end of document
+    // if no end position specified, select end of document
     ui_end = ui_end != string::npos ? ui_end
              : str_in.length() - 1;
 
@@ -1670,14 +1670,14 @@ void html_template::escape_var( std::string & arg, const en_escape_mode escape_m
 //----------------------------------------------------------------------------
 
 void html_template::throw_exception( syntax_ex & ex ) const {
-// add any extra data and rethrow
+    // add any extra data and rethrow
     ex.template_path = str_tmpl_file_name;
     throw ex;
 }
 //----------------------------------------------------------------------------
 
 void html_template::throw_exception( runtime_ex & ex ) const {
-// add any extra data and rethrow
+    // add any extra data and rethrow
     ex.template_path = str_tmpl_file_name;
     throw ex;
 }
@@ -1734,8 +1734,8 @@ bool loop_s::Empty() const {
         return false;
     }
 
-// if got this far, check that the single row is not a single value container
-// (remember that even single values are stored in loop containers)
+    // if got this far, check that the single row is not a single value container
+    // (remember that even single values are stored in loop containers)
 
     loop_s::rows_t::const_iterator itr_row = rows_c.begin();
 
@@ -1752,7 +1752,7 @@ const loop_s & cls_variable::Get_Val_Table() const {
 // utilities
 //----------------------------------------------------------------------------
 void uc(std::string & str) {
-    std::transform (str.begin(), str.end(), str.begin(), char_toupper);
+    std::transform(str.begin(), str.end(), str.begin(), char_toupper);
 }
 //-----------------------------------------------------------------------
 
@@ -1769,14 +1769,14 @@ bool bin_predicate_search_nocase(char ch1, char ch2) {
 const string::size_type find_no_case(const std::string & str_src,
                                      const std::string & str_find,
                                      const size_t start_pos) {
-// begin searching where?
+    // begin searching where?
     string::const_iterator begin = str_src.begin();
     std::advance(begin, start_pos);
 
-// the integer result
+    // the integer result
     string::size_type pos = string::npos;
 
-// the iterator result
+    // the iterator result
     string::const_iterator itr = std::search(
                                      begin, str_src.end(),
                                      str_find.begin(), str_find.end(),

@@ -6,14 +6,14 @@ using namespace tmpl;
 //----------------------------------------------------------------------------
 
 int main(int argc, char* argv[]) {
-// create a template object
+    // create a template object
     html_template templ("example.tmpl");
 
-// assign a value to variable VAR1
+    // assign a value to variable VAR1
     templ("VAR1") = "I am your very first template variable.";
 
-// create a loop - does not have to be an std::map, we are just using this for
-// clarity
+    // create a loop - does not have to be an std::map, we are just using this for
+    // clarity
 
     map<string, int> scores; // student names and scores on a test
     scores["Aagney"] = 45;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
         loop += row;
     }
 
-// assign the loop to the template (case-insensitive)
+    // assign the loop to the template (case-insensitive)
     templ("SCORES") = loop;
 
     cout << templ;
