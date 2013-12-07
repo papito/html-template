@@ -17,12 +17,12 @@ struct test_s {
 //! ctructor
     test_s() {}
 //! ctructor with template file name
-    test_s(std::string arg_file) {
+    test_s(const std::string & arg_file) {
         str_file = arg_file;
     }
 //! ctructor with template file name and exception to catch, to test syntax
 // error catching
-    test_s(std::string arg_file, std::string str_error) {
+    test_s(const std::string & arg_file, const std::string & str_error) {
         str_file = arg_file;
         str_error_to_catch = str_error;
     }

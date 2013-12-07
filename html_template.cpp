@@ -295,7 +295,7 @@ html_template::html_template(const std::string & arg_file_name) {
 }
 //----------------------------------------------------------------------------
 
-void html_template::Set_Template_File(const std::string arg_file_name) {
+void html_template::Set_Template_File(const std::string & arg_file_name) {
     str_tmpl_file_name = arg_file_name;
 
     if (arg_file_name.empty()) {
@@ -471,7 +471,7 @@ html_template::~html_template() {
 }
 //----------------------------------------------------------------------------
 
-cls_variable & html_template::operator() (const std::string arg_var_name) {
+cls_variable & html_template::operator() (const std::string & arg_var_name) {
     string arg_var_name_uc = arg_var_name;
     // uppercase
     uc(arg_var_name_uc);
@@ -1816,7 +1816,7 @@ const std::string file_directory(const std::string & str_path) {
 }
 //-----------------------------------------------------------------------
 
-std::string trim_string(const std::string & str, const std::string  characters /*= " \t\n\r"*/) {
+std::string trim_string(const std::string & str, const std::string & characters /*= " \t\n\r"*/) {
     string str_ret(str);
     string::size_type pos = str_ret.find_first_not_of(characters);
 
@@ -1837,7 +1837,7 @@ std::string trim_string(const std::string & str, const std::string  characters /
 }
 //-----------------------------------------------------------------------
 
-void search_replace(std::string & str_src, const std::string str_to_find,
+void search_replace(std::string & str_src, const std::string& str_to_find,
                     const std::string & str_replace) {
     if ( !str_src.length() )     return;
 
