@@ -81,10 +81,10 @@ const std::string::size_type find_no_case(
 const std::string file_directory(const std::string & str_path);
 
 //! trim string
-std::string trim_string(const std::string & str, const std::string  characters = " \t\n\r");
+std::string trim_string(const std::string & str, const std::string & characters = " \t\n\r");
 
 //! search/replace string by reference
-void search_replace(std::string & str_src, const std::string str_to_find,
+void search_replace(std::string & str_src, const std::string & str_to_find,
                     const std::string & str_replace);
 
 //! escape a URL
@@ -725,10 +725,10 @@ public:
 
     //! assign template file if none was given at first. This loads the file as
     //well
-    void Set_Template_File(const std::string arg_file_name);
+    void Set_Template_File(const std::string & arg_file_name);
 
     //! assign a variable to the template
-    cls_variable & operator() (const std::string arg_var_name);
+    cls_variable & operator() (const std::string & arg_var_name);
 
     //! process the template, return generated string
     const std::string & Process();
