@@ -14,7 +14,7 @@ html_template templ;
 tests_t tests_c;
 
 // convert a file.tmpl into a file.txt
-string get_reference_file(const string str_file_name) {
+string get_reference_file(const string& str_file_name) {
     size_t dot_pos = str_file_name.rfind('.', str_file_name.length());
     string str_ret = "";
 
@@ -27,7 +27,7 @@ string get_reference_file(const string str_file_name) {
 }
 //----------------------------------------------------------------------------
 
-void test(const tests_t & tests_c, const string str_test_name) {
+void test(const tests_t & tests_c, const string& str_test_name) {
     cout << str_test_name << " ";
 
     for (unsigned int n=0; n < tests_c.size(); n++) {
@@ -152,7 +152,7 @@ void run() {
 }
 //----------------------------------------------------------------------------
 
-void create(const string str_tmpl_file = "") {
+void create(const string& str_tmpl_file = "") {
     // if we are trying to create a single reference file, overwrite the global
     // test list
     if ( str_tmpl_file.length() ) {
