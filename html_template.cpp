@@ -44,7 +44,7 @@ row_cell_s::row_cell_s(const row_cell_s & arg) {
     // allocated for table, while this cell actually may
     // contain a string value only
 
-    if ( arg.p_table ) // this is why zero-init above is important, but it's
+    if (arg.p_table) // this is why zero-init above is important, but it's
         // for the object being assigned
     {
         p_table = new loop_s;
@@ -54,7 +54,7 @@ row_cell_s::row_cell_s(const row_cell_s & arg) {
 //----------------------------------------------------------------------------
 
 row_cell_s::~row_cell_s() {
-    if ( p_table ) {
+    if (p_table) {
         delete p_table;
     }
 }
@@ -74,7 +74,7 @@ row_cell_s & row_s::operator() (const std::string & str_name) {
     string str_name_uc = str_name;
     // uppercase
     str_name_uc = str_name;
-    uc( str_name_uc );
+    uc(str_name_uc);
 
     // create new table cell
     row_cell_s cell;
@@ -138,7 +138,7 @@ tag_s::tag_s(const tag_type_s & arg_type) {
 
 void tag_s::Shift(const ptrdiff_t i_offset) {
     // do not shit an empty tag
-    if ( begin == string::npos ) return;
+    if (begin == string::npos) return;
 
     begin = static_cast<size_t>(begin + i_offset);
     end   = static_cast<size_t>(end   + i_offset);
@@ -151,7 +151,7 @@ const bool tag_s::Empty() const {
                str_name.empty() == true
                && b_termination == false
                && b_splitter == false
-           );
+          );
 }
 //----------------------------------------------------------------------------
 
@@ -190,7 +190,7 @@ bool un_predicate_count_tag_type::operator()(const tag_s & arg_tag) {
 //----------------------------------------------------------------------------
 block_s::block_s(const tag_s & arg_open) {
     b_deleted  = false;
-    Set_Open_Tag( arg_open );
+    Set_Open_Tag(arg_open);
 }
 //----------------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ block_s::block_s() {
 void block_s::Shift(const ptrdiff_t i_offset, const size_t ui_start,
                     const size_t ui_end) {
     // do nothing if the block is no longer in the set
-    if ( Deleted() == true ) return;
+    if (Deleted() == true) return;
 
     // store all tags in a container, for easy iteration
     vector <tag_s*> tags_c;
@@ -216,12 +216,12 @@ void block_s::Shift(const ptrdiff_t i_offset, const size_t ui_start,
     tags_c.push_back(&tag_split);
     tags_c.push_back(&tag_close);
 
-    for ( size_t n=0; n < tags_c.size(); n++ ) {
+    for (size_t n=0; n < tags_c.size(); n++) {
         /*not const*/ tag_s* itr_tag = tags_c[n];
 
         // do nothing if the tag is above the start position or below the end
         // posisiton
-        if ( itr_tag->Start() < ui_start || itr_tag->Stop() > ui_end ) {
+        if (itr_tag->Start() < ui_start || itr_tag->Stop() > ui_end) {
             continue;
         }
 
@@ -232,7 +232,7 @@ void block_s::Shift(const ptrdiff_t i_offset, const size_t ui_start,
 
 bool block_s::Contains(const block_s & rhs) const {
     // if this is a block with no terminating tag, it can't contain anything
-    if ( this->Get_Type().b_block_tag == false ) {
+    if (this->Get_Type().b_block_tag == false) {
         return false;
     }
 
@@ -310,9 +310,9 @@ void html_template::Set_Template_File(const std::string & arg_file_name) {
 
 const std::string & html_template::Process() {
     std::ifstream in_stream;
-    in_stream.open( str_tmpl_file_name.c_str(), ios::binary );
+    in_stream.open(str_tmpl_file_name.c_str(), ios::binary);
 
-    if( !in_stream.is_open() ) {
+    if(!in_stream.is_open()) {
         runtime_ex ex("Could not open template file");
         throw_exception(ex);
     }
@@ -337,11 +337,11 @@ const std::string & html_template::Process() {
     tag_map_t::const_iterator itr_tag;
 
     // check that every tag is part of a block
-    for ( itr_tag = tag_map.begin(); itr_tag != tag_map.end(); ++itr_tag ) {
+    for (itr_tag = tag_map.begin(); itr_tag != tag_map.end(); ++itr_tag) {
         block_map_t::const_iterator itr_block
             = find(block_map.begin(), block_map.end(), *itr_tag);
 
-        if ( itr_block == block_map.end() ) {
+        if (itr_block == block_map.end()) {
             syntax_ex error("Unmatched tag");
             error.line = get_line_from_pos(itr_tag->Start());
             error.detail = "Unmatched '"
@@ -356,7 +356,7 @@ const std::string & html_template::Process() {
     //
     // assert that every tag appears only once in each block
     //
-    for ( itr_tag = tag_map.begin(); itr_tag != tag_map.end(); ++itr_tag ) {
+    for (itr_tag = tag_map.begin(); itr_tag != tag_map.end(); ++itr_tag) {
         un_predicate_count_tag predicate(*itr_tag);
 
         const size_t ui_occurances
@@ -402,24 +402,24 @@ void html_template::print_block_map(block_map_t & r_block_map) {
          << "\nBLOCK MAP"
          << "\n*************************************************\n";
 
-    for ( ; itr_block != r_block_map.end(); ++itr_block) {
+    for (; itr_block != r_block_map.end(); ++itr_block) {
         cout << itr_block->Get_Type().str_tag_class
              << "\t"<< itr_block->Get_Name();
 
-        if ( itr_block->Deleted() )
+        if (itr_block->Deleted())
             cout << " [DELETED]";
 
         cout << "\nOpen\tL " << get_line_from_pos(itr_block->Get_Open_Tag().Start())
              << " (" << itr_block->Get_Open_Tag().Start()
              << ", " << itr_block->Get_Open_Tag().Stop() << ")";
 
-        if ( itr_block->Get_Split_Tag().Start() != string::npos )
+        if (itr_block->Get_Split_Tag().Start() != string::npos)
             cout << "\nSplit\tL "
                  << get_line_from_pos(itr_block->Get_Split_Tag().Start())
                  << " (" << itr_block->Get_Split_Tag().Start()
                  << ", " << itr_block->Get_Split_Tag().Stop() << ")";
 
-        if ( itr_block->Get_Close_Tag().Start() != string::npos )
+        if (itr_block->Get_Close_Tag().Start() != string::npos)
             cout << "\nClose\tL "
                  << get_line_from_pos(itr_block->Get_Close_Tag().Start())
                  << " (" << itr_block->Get_Close_Tag().Start()
@@ -444,17 +444,17 @@ void html_template::print_tag_map() {
          << "\nTAG MAP"
          << "\n*************************************************\n";
 
-    for ( itr_tag = tag_map.begin(); itr_tag != tag_map.end(); ++itr_tag ) {
+    for (itr_tag = tag_map.begin(); itr_tag != tag_map.end(); ++itr_tag) {
         cout << "L " << get_line_from_pos(itr_tag->Start()) << "\t";
 
-        if ( itr_tag->Is_Termination() )
+        if (itr_tag->Is_Termination())
             cout << "</";
         else
             cout << "<";
 
         cout << itr_tag->Get_Tag_Type().str_tag_type << ">";
 
-        if ( itr_tag->Is_Named() )
+        if (itr_tag->Is_Named())
             cout << "\t= ";
 
         cout << itr_tag->Get_Name()
@@ -497,7 +497,7 @@ html_template::Get_Tag_Type_Count(const tag_type_s & tag_type) const {
 
     const size_t ui_count = std::count_if(
                                 tag_map.begin(), tag_map.end(), predicate
-                            );
+                           );
 
     return ui_count;
 }
@@ -521,7 +521,7 @@ void html_template::init() {
     // types
     tag_types_t::const_iterator itr_tag_type = tag_types_c.begin();
 
-    for ( ; itr_tag_type != tag_types_c.end(); ++itr_tag_type ) {
+    for (; itr_tag_type != tag_types_c.end(); ++itr_tag_type) {
         tag_type_s tag_type = itr_tag_type->second;
         string str_tag_type_ref = tag_type_prefix + tag_type.str_tag_type;
         // save
@@ -551,9 +551,9 @@ void html_template::expand_includes() {
     unsigned short ush_processed_includes = 0;
 
     for (; itr_block != block_map.end(); ++itr_block) {
-        if ( itr_block->Get_Type() != tag_types_c["INCLUDE"] ) continue;
+        if (itr_block->Get_Type() != tag_types_c["INCLUDE"]) continue;
 
-        if ( itr_block->Deleted() )                            continue;
+        if (itr_block->Deleted())                            continue;
 
         // increment count
         ++ush_processed_includes;
@@ -564,19 +564,19 @@ void html_template::expand_includes() {
 
         // the file may have either absolute or relative path. If relative, combine
         // it with the path of the parent file
-        if ( str_file_name.find_first_of("\\/", 0, 1) == string::npos ) {
+        if (str_file_name.find_first_of("\\/", 0, 1) == string::npos) {
             // this file is relative to main template location
 
             // get the main template dir
-            const string str_parent_tmpl_dir = file_directory( str_tmpl_file_name );
+            const string str_parent_tmpl_dir = file_directory(str_tmpl_file_name);
 
             str_file_name = str_parent_tmpl_dir + str_file_name;
         }
 
         std::ifstream in_stream;
-        in_stream.open( str_file_name.c_str() );
+        in_stream.open(str_file_name.c_str());
 
-        if( !in_stream.is_open() ) {
+        if(!in_stream.is_open()) {
             runtime_ex ex("Could not open file for reading");
             throw_exception(ex);
         }
@@ -599,17 +599,17 @@ void html_template::expand_includes() {
         shift_tags(
             str_tmpl_txt, block_map, i_offset,
             itr_block->Get_Open_Tag().Stop()
-        );
+       );
 
         str_tmpl_txt.replace(
             itr_block->Get_Open_Tag().Start(),
             block_len,
             str_replace_with
-        );
+       );
     }
 
     // recurse if any tags were processed
-    if ( ush_processed_includes ) {
+    if (ush_processed_includes) {
         expand_includes(); // RECURSION
     }
 
@@ -625,9 +625,9 @@ void html_template::process_conditionals(block_map_t & r_block_map,
     block_map_t::iterator itr_block = r_block_map.begin();
 
     for (; itr_block != r_block_map.end(); ++itr_block) {
-        if ( itr_block->Get_Type() != tag_types_c["IF"] ) continue;
+        if (itr_block->Get_Type() != tag_types_c["IF"]) continue;
 
-        if ( itr_block->Deleted() )                       continue;
+        if (itr_block->Deleted())                       continue;
 
         // ignore this conditional if it's within a loop scope (defined inside the
         // given block map
@@ -635,15 +635,15 @@ void html_template::process_conditionals(block_map_t & r_block_map,
         bool b_this_scope = true;
 
         for (; itr_block_2 != r_block_map.end(); ++itr_block_2) {
-            if ( itr_block_2->Get_Type() == tag_types_c["LOOP"] ) {
-                if ( itr_block_2->Contains(*itr_block) ) {
+            if (itr_block_2->Get_Type() == tag_types_c["LOOP"]) {
+                if (itr_block_2->Contains(*itr_block)) {
                     b_this_scope = false;
                     break;;
                 }
             }
         }
 
-        if ( !b_this_scope ) continue;
+        if (!b_this_scope) continue;
 
 #ifdef DEBUG2
         cout << "processing conditional " << itr_block->Get_Name() << endl;
@@ -671,21 +671,21 @@ void html_template::process_conditionals(block_map_t & r_block_map,
 
         // if variable for this IF found, evaluate
         variables_t::iterator itr_var;
-        itr_var = r_variables_c.find( itr_block->Get_Name() );
+        itr_var = r_variables_c.find(itr_block->Get_Name());
 
-        if ( itr_var != r_variables_c.end() ) {
+        if (itr_var != r_variables_c.end()) {
             cls_variable & r_var = itr_var->second;
 
             // evaluate the IF
             b_eval_as_true = evaluate(r_var);
 
             // if this is an UNLESS, flip the evaluation result
-            if ( itr_block->Get_Type().str_tag_type == "UNLESS" ) {
+            if (itr_block->Get_Type().str_tag_type == "UNLESS") {
                 b_eval_as_true = (b_eval_as_true == false) ? true : false;
             }
         } else {
             // if this is an unless, the absent variable should eval to TRUE
-            if ( itr_block->Get_Type().str_tag_type == "UNLESS" ) {
+            if (itr_block->Get_Type().str_tag_type == "UNLESS") {
                 b_eval_as_true = true;
             }
         }
@@ -693,9 +693,9 @@ void html_template::process_conditionals(block_map_t & r_block_map,
         // determine what we are replacing the IF with
 
         // if this is a two part block
-        if ( itr_block->Has_Split_Tag() ) {
+        if (itr_block->Has_Split_Tag()) {
             // replace with first part of statement if true
-            if ( b_eval_as_true) {
+            if (b_eval_as_true) {
                 // replace the whole if with what's between the IF and the ELSE
                 replace_with_begin = itr_block->Get_Open_Tag().Stop();
                 replace_with_end   = itr_block->Get_Split_Tag().Start();
@@ -755,7 +755,7 @@ void html_template::process_conditionals(block_map_t & r_block_map,
                     + 1;
 
         // delete all blocks in IF part that will go away, if that part is defined
-        if ( delete_btwn_tag_begin.Empty() == false ) {
+        if (delete_btwn_tag_begin.Empty() == false) {
             delete_blocks(delete_btwn_tag_begin, delete_btwn_tag_end, r_block_map);
         }
 
@@ -771,9 +771,9 @@ void html_template::process_conditionals(block_map_t & r_block_map,
             shift_tag_from.Stop(),
             // shift range end
             shift_tag_until.Start()
-        );
+       );
 
-        if ( itr_block->Has_Split_Tag() ) {
+        if (itr_block->Has_Split_Tag()) {
             // shift tags in rest of document
             const ptrdiff_t i_offset = get_offset(block_len, str_replace_with);
 
@@ -782,13 +782,13 @@ void html_template::process_conditionals(block_map_t & r_block_map,
                 r_block_map,
                 i_offset,
                 shift_tag_until.Stop()
-            );
+           );
 
             str_text.replace(
                 itr_block->Get_Open_Tag().Start(),
                 block_len,
                 str_replace_with
-            );
+           );
         } else { // process the whole IF
             if (!b_eval_as_true) {
                 str_replace_with.clear();
@@ -802,13 +802,13 @@ void html_template::process_conditionals(block_map_t & r_block_map,
                 r_block_map,
                 i_offset,
                 itr_block->Get_Close_Tag().Start()
-            );
+           );
 
             str_text.replace(
                 itr_block->Get_Open_Tag().Start(),
                 block_len,
                 str_replace_with
-            );
+           );
         }
 
         itr_block->Delete();
@@ -823,9 +823,9 @@ void html_template::process_simple_vars(block_map_t & r_block_map,
     block_map_t::iterator itr_block = r_block_map.begin();
 
     for (; itr_block != r_block_map.end(); ++itr_block) {
-        if ( itr_block->Get_Type() != tag_types_c["SIMPLE"] ) continue;
+        if (itr_block->Get_Type() != tag_types_c["SIMPLE"]) continue;
 
-        if ( itr_block->Deleted() )                           continue;
+        if (itr_block->Deleted())                           continue;
 
 #ifdef DEBUG2
         cout << "processing variable " << itr_block->Get_Name() << endl;
@@ -840,10 +840,10 @@ void html_template::process_simple_vars(block_map_t & r_block_map,
 
         pos_var = r_variables_c.find(itr_block->Get_Name());
 
-        if ( pos_var != r_variables_c.end() ) {
+        if (pos_var != r_variables_c.end()) {
             p_var = &(pos_var->second);
             str_replace_with = p_var->Get_Val_String();
-            escape_var( str_replace_with, itr_block->Get_Escape_Mode() );
+            escape_var(str_replace_with, itr_block->Get_Escape_Mode());
         }
 
         const size_t block_len = itr_block->Get_Open_Tag().Stop()
@@ -856,13 +856,13 @@ void html_template::process_simple_vars(block_map_t & r_block_map,
             r_block_map,
             i_offset,
             itr_block->Get_Open_Tag().Stop()
-        );
+       );
 
         str_text.replace(
             itr_block->Get_Open_Tag().Start(),
             block_len,
             str_replace_with
-        );
+       );
 
         itr_block->Delete();
     }
@@ -875,11 +875,11 @@ void html_template::process_loops(block_map_t & r_block_map,
     block_map_t::iterator itr_block = r_block_map.begin();
 
     for (; itr_block != r_block_map.end(); ++itr_block) {
-        if ( itr_block->Get_Type() != tag_types_c["LOOP"] ) continue;
+        if (itr_block->Get_Type() != tag_types_c["LOOP"]) continue;
 
-        if ( itr_block->Deleted() )                         continue;
+        if (itr_block->Deleted())                         continue;
 
-        process_loop( *itr_block, str_text, r_block_map, r_variables_c );
+        process_loop(*itr_block, str_text, r_block_map, r_variables_c);
 
         itr_block->Delete();
     }
@@ -895,12 +895,12 @@ void html_template::process_loop(const block_s & block,
 #endif
 
     // Get the table variable for this block.
-    variables_t::iterator itr_var = r_variables_c.find( block.Get_Name() );
+    variables_t::iterator itr_var = r_variables_c.find(block.Get_Name());
     loop_s local_table;
 
     itr_var = r_variables_c.find(block.Get_Name());
 
-    if ( itr_var != r_variables_c.end() ) {
+    if (itr_var != r_variables_c.end()) {
         cls_variable & r_var = itr_var->second;
         local_table = r_var.Get_Val_Table();
     }
@@ -930,7 +930,7 @@ void html_template::process_loop(const block_s & block,
 
     for (; itr_block != r_block_map.end(); ++itr_block) {
         // skip processed
-        if ( itr_block->Deleted() ) continue;
+        if (itr_block->Deleted()) continue;
 
         // get out if we are past the end of this loop
         if (*itr_block > block) break;
@@ -978,17 +978,17 @@ void html_template::process_loop(const block_s & block,
             const string str_val  = itr_cell->second.str_val;
             loop_s *p_nested_loop = 0;
 
-            if ( itr_cell->second.p_table ) {
+            if (itr_cell->second.p_table) {
                 p_nested_loop = itr_cell->second.p_table;
             }
 
             // delete this key of a global variable of the same name trespasses
             // private scope
-            if ( lcl_variables_c.find(str_name) != lcl_variables_c.end() ) {
+            if (lcl_variables_c.find(str_name) != lcl_variables_c.end()) {
                 lcl_variables_c.erase(str_name);
             }
 
-            if ( str_val.empty() && p_nested_loop != 0 ) {
+            if (str_val.empty() && p_nested_loop != 0) {
                 cls_variable var(str_name);
                 var = *p_nested_loop;
                 lcl_variables_c[str_name] = var;
@@ -1079,7 +1079,7 @@ void html_template::process_loop(const block_s & block,
         block.Get_Open_Tag().Length() * -1,
         block.Get_Open_Tag().Stop(),
         block.Get_Close_Tag().Start()
-    );
+   );
 
     // shift tags after this block
     const ptrdiff_t i_offset = get_offset(block_len, str_replace_with);
@@ -1089,7 +1089,7 @@ void html_template::process_loop(const block_s & block,
         r_block_map,
         i_offset,
         block.Get_Close_Tag().Stop()
-    );
+   );
 
     str_text.replace(block_start, block_len, str_replace_with);
 }
@@ -1100,40 +1100,40 @@ bool html_template::evaluate(cls_variable & var) const {
     const loop_s & val_loop = var.Get_Val_Table();
 
     // return FALSE right away if both table and string are really empty
-    if ( val_loop.Empty() && val_string.empty() ) {
+    if (val_loop.Empty() && val_string.empty()) {
         return false;
     }
 
     const string characters = " \t\n\r";
     size_t pos = val_string.find_first_not_of(characters);
 
-    if ( string::npos != pos )
+    if (string::npos != pos)
         val_string = val_string.substr(pos);
 
     pos = val_string.find_last_not_of(characters);
 
-    if ( string::npos != pos ) {
+    if (string::npos != pos) {
         val_string = val_string.substr(0, pos+1);
     } else {
         // it is still possible that 'str' contains only 'characters':
-        if ( string::npos != val_string.find_first_of(characters) )
+        if (string::npos != val_string.find_first_of(characters))
             val_string.erase();
     }
 
     // delete a single dot, if any (assuming this is a double)
     size_t dot_pos = val_string.find(".");
 
-    if ( dot_pos != string::npos ) {
+    if (dot_pos != string::npos) {
         val_string.erase(dot_pos, 1);
     }
 
     // if there is another dot - this is NOT a number, and is TRUE
-    if ( val_string.find(".") != string::npos ) return true;
+    if (val_string.find(".") != string::npos) return true;
 
     // delete all zeros
     size_t zero_pos = val_string.find("0");
 
-    while ( zero_pos != string::npos ) {
+    while (zero_pos != string::npos) {
         val_string.erase(zero_pos, 1);
         zero_pos = val_string.find("0");
     }
@@ -1146,11 +1146,11 @@ const ptrdiff_t html_template::get_offset(const size_t block_len,
         const std::string & str_replace) const {
     ptrdiff_t i_offset = 0;
 
-    if ( block_len < str_replace.length() ) {
+    if (block_len < str_replace.length()) {
         i_offset = str_replace.length() - block_len;
     }
 
-    if ( block_len > str_replace.length() ) {
+    if (block_len > str_replace.length()) {
         i_offset = - static_cast<ptrdiff_t>((block_len) - str_replace.length());
     }
 
@@ -1164,8 +1164,8 @@ void html_template::delete_blocks(const tag_s & open_tag,
     block_map_t::iterator itr_block = r_block_map.begin();
 
     for (; itr_block != r_block_map.end(); ++itr_block) {
-        if ( itr_block->Get_Open_Tag().Start() > open_tag.Stop()
-                && itr_block->Get_Open_Tag().Start() < close_tag.Start() ) {
+        if (itr_block->Get_Open_Tag().Start() > open_tag.Stop()
+                && itr_block->Get_Open_Tag().Start() < close_tag.Start()) {
             itr_block->Delete();
         }
     }
@@ -1188,7 +1188,7 @@ void html_template::build_line_map() {
     do {
         pos_line_end = str_tmpl_txt.find_first_of("\r\n", pos_line_begin);
 
-        if ( pos_line_end != string::npos ) {
+        if (pos_line_end != string::npos) {
             line_map[ui_line] = std::make_pair(pos_line_begin, pos_line_end - 1);
 #ifdef DEBUG3
             cout << "Line " << ui_line << ": " << pos_line_begin << " - "
@@ -1216,10 +1216,10 @@ void html_template::build_tag_map() {
     do {
         tag = find_tag();
 
-        if ( tag.Empty() == false )
+        if (tag.Empty() == false)
             tag_map.insert(tag);
 
-    } while ( !tag.Empty() );
+    } while (!tag.Empty());
 }
 //------------------------------------------------------------------------------
 
@@ -1237,17 +1237,17 @@ void html_template::build_block_map() {
     // Iterate through tags and create tag blocks
     for (; itr_tag != tag_map.end(); ++itr_tag) {
         // skip unnamed tags
-        if ( itr_tag->Is_Named() == false ) continue;
+        if (itr_tag->Is_Named() == false) continue;
 
         // add simple tags and go to next right away
-        if ( itr_tag->Get_Tag_Type() == tag_types_c["SIMPLE"] ) {
+        if (itr_tag->Get_Tag_Type() == tag_types_c["SIMPLE"]) {
             block_s block(*itr_tag);
             block_map.push_back(block);
             continue;
         }
 
         // add include tags and bail out
-        if ( itr_tag->Get_Tag_Type() == tag_types_c["INCLUDE"] ) {
+        if (itr_tag->Get_Tag_Type() == tag_types_c["INCLUDE"]) {
             block_s block(*itr_tag);
             block_map.push_back(block);
             continue;
@@ -1256,9 +1256,9 @@ void html_template::build_block_map() {
         block_s block;
 
         // if this is an opening for a block tag
-        if ( itr_tag->Get_Tag_Type().b_block_tag && itr_tag->Is_Named() ) {
+        if (itr_tag->Get_Tag_Type().b_block_tag && itr_tag->Is_Named()) {
             // create and add the new block
-            block.Set_Open_Tag( *itr_tag );
+            block.Set_Open_Tag(*itr_tag);
 #ifdef DEBUG3
             cout << "Adding opening tag to " << itr_tag->Get_Name() << endl;
 #endif
@@ -1280,41 +1280,41 @@ void html_template::build_block_map() {
 
         for (; itr_term_tag != tag_map.end(); ++itr_term_tag) {
             // skip anyting simple
-            if ( itr_term_tag->Get_Tag_Type() == tag_types_c["SIMPLE"] ) {
+            if (itr_term_tag->Get_Tag_Type() == tag_types_c["SIMPLE"]) {
                 continue;
             }
 
             // another nested block begins, we can see
-            if ( itr_term_tag->Is_Named() ) {
+            if (itr_term_tag->Is_Named()) {
                 ++ui_skip_num;
                 continue;
             }
 
             // A nested block ends. We are not interested. Next!
-            if ( itr_term_tag->Is_Termination() && ui_skip_num ) {
+            if (itr_term_tag->Is_Termination() && ui_skip_num) {
                 --ui_skip_num;
                 continue;
             }
 
             // A spliiter for a nested block. Nothing to see here.
-            if ( itr_term_tag->Is_Splitter() && ui_skip_num ) {
+            if (itr_term_tag->Is_Splitter() && ui_skip_num) {
                 continue;
             }
 
             // we found a splitter for this block
-            if ( itr_term_tag->Is_Splitter() && ui_skip_num == 0 ) {
+            if (itr_term_tag->Is_Splitter() && ui_skip_num == 0) {
 #ifdef DEBUG3
                 cout << "Adding splitter tag to " << block.Get_Name() << endl;
 #endif
-                block.Set_Split_Tag( *itr_term_tag );
+                block.Set_Split_Tag(*itr_term_tag);
                 continue;
             }
 
             // and that's the way the coookie crumbles - we found the terminating
             // tag
-            if ( itr_term_tag->Is_Termination() && ui_skip_num == 0) {
+            if (itr_term_tag->Is_Termination() && ui_skip_num == 0) {
                 // check that this tag is of correct type
-                if ( itr_term_tag->Get_Tag_Type() != itr_tag->Get_Tag_Type() ) {
+                if (itr_term_tag->Get_Tag_Type() != itr_tag->Get_Tag_Type()) {
                     syntax_ex error("Block not properly terminated");
                     error.line = get_line_from_pos(itr_tag->Start());
                     error.detail = "'" + itr_tag->Get_Name() + "'"
@@ -1325,15 +1325,15 @@ void html_template::build_block_map() {
 #ifdef DEBUG3
                 cout << "Adding termination tag to " << block.Get_Name() << endl;
 #endif
-                block.Set_Close_Tag( *itr_term_tag );
-                block_map.push_back( block );
+                block.Set_Close_Tag(*itr_term_tag);
+                block_map.push_back(block);
                 break;
             }
         }
 
         // BUT if we don't find the termination tag, it's missing.
         // MISSING!
-        if ( block.Get_Close_Tag().Empty() ) {
+        if (block.Get_Close_Tag().Empty()) {
             syntax_ex error("Block not terminated");
             error.line = get_line_from_pos(block.Get_Open_Tag().Start());
             error.detail = "'" + block.Get_Name() + "'"
@@ -1351,15 +1351,15 @@ tag_s html_template::find_tag() const {
     // find the last tag added
     tag_map_t::const_iterator itr_last_elem = std::max_element(
                 tag_map.begin(), tag_map.end()
-            );
+           );
 
-    if ( itr_last_elem != tag_map.end() ) {
+    if (itr_last_elem != tag_map.end()) {
         start_pos = itr_last_elem->Stop() + 1;
     }
 
-    size_t pos_var = find_no_case( str_tmpl_txt, tag_type_prefix, start_pos );
+    size_t pos_var = find_no_case(str_tmpl_txt, tag_type_prefix, start_pos);
 
-    if ( pos_var == string::npos ) {
+    if (pos_var == string::npos) {
         return tag; // this tag object is EMPTY
     }
 
@@ -1367,7 +1367,7 @@ tag_s html_template::find_tag() const {
     size_t pos_tag_open = str_tmpl_txt.rfind('<', pos_var - 1);
 
     // NO bracket found
-    if ( pos_tag_open == string::npos ) {
+    if (pos_tag_open == string::npos) {
         syntax_ex error("Malformed tag");
         error.line = get_line_from_pos(pos_var);
         error.detail = "Could not locate opening bracket";
@@ -1377,7 +1377,7 @@ tag_s html_template::find_tag() const {
     // find the closing bracket after the templare variable prefix
     size_t pos_tag_close = str_tmpl_txt.find('>', pos_var + 1);
 
-    if ( pos_tag_close == string::npos ) {
+    if (pos_tag_close == string::npos) {
         syntax_ex error("Malformed tag");
         error.line = get_line_from_pos(pos_var);
         error.detail = "Could not locate closing bracket";
@@ -1390,12 +1390,12 @@ tag_s html_template::find_tag() const {
 
     // get a ready-to-use tag object, catching any syntax exceptions
     try {
-        tag = parse_tag( str_compl_tag );
-    } catch ( std::exception & ex ) {
-        syntax_ex error( "Malformed tag" );
+        tag = parse_tag(str_compl_tag);
+    } catch (std::exception & ex) {
+        syntax_ex error("Malformed tag");
         error.detail = ex.what();
-        error.line =  get_line_from_pos( pos_tag_open );
-        throw_exception( error );
+        error.line =  get_line_from_pos(pos_tag_open);
+        throw_exception(error);
     }
 
     // Set other tag parameters the tag parsing logic is not required for (since
@@ -1410,12 +1410,12 @@ tag_s html_template::find_tag() const {
 
 const std::string html_template::truncate(const std::string & arg) const {
     size_t pos;
-    string str( arg );
+    string str(arg);
 
     do {
         pos = str.find_first_of("\t\r\n");
 
-        if ( pos != string::npos ) {
+        if (pos != string::npos) {
             str.replace(pos,1,"");
             --pos;
         }
@@ -1426,9 +1426,9 @@ const std::string html_template::truncate(const std::string & arg) const {
 }
 //----------------------------------------------------------------------------
 
-const tag_s html_template::parse_tag( const std::string & arg ) const {
+const tag_s html_template::parse_tag(const std::string & arg) const {
     // kill any return characters and whatnot
-    const string str = truncate( arg );
+    const string str = truncate(arg);
 
     tag_s tag; // empty for now
 
@@ -1442,18 +1442,18 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
     string str_escape_mode = "";
     bool b_termination_tag = false;
 
-    for ( size_t n = 1; n < str.length() - 1; ++n ) {
+    for (size_t n = 1; n < str.length() - 1; ++n) {
         const char & ch = str[n];
 
         // skip junk seperators
-        if ( ch == '\t' ||  ch == '\r' ||  ch == '\n' || ch == ' ' || ch == '=' ) continue;
+        if (ch == '\t' ||  ch == '\r' ||  ch == '\n' || ch == ' ' || ch == '=') continue;
 
 #ifdef DEBUG3
         cout << "(" << ch << ")" << endl;
 #endif
 
         // account for the tag terminator
-        if ( ch == '/' ) {
+        if (ch == '/') {
             str_last_token = ch;
             b_termination_tag = true;
             continue;
@@ -1462,34 +1462,34 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
         string str_to_look_for = "";
 
         // if this is a start of some token
-        if ( isalpha( ch ) || ch == '_' /* for our loop context vars */ ) {
+        if (isalpha(ch) || ch == '_' /* for our loop context vars */) {
             str_to_look_for = ">='\"\t\r\n ";
         }
 
-        if ( ch == '"' || ch == '\'' ) {
+        if (ch == '"' || ch == '\'') {
             str_to_look_for = ch;
         }
 
-        size_t token_stop = str.find_first_of( str_to_look_for, n + 1 );
+        size_t token_stop = str.find_first_of(str_to_look_for, n + 1);
 
-        if ( token_stop == string::npos ) {
+        if (token_stop == string::npos) {
             throw std::runtime_error("Could not parse tag");
         }
 
-        string str_token = str.substr( n, token_stop - n );
+        string str_token = str.substr(n, token_stop - n);
 
         // strip leading quotes from final tolen
-        if ( str_token.size() && (str_token[0] == '\'' || str_token[0] == '"') ) {
+        if (str_token.size() && (str_token[0] == '\'' || str_token[0] == '"')) {
             str_token.erase(0, 1);
         }
 
         // trim spaces
-        while ( str_token.at( str_token.size() - 1) == ' ' ) {
-            str_token.resize( str_token.size() - 1 );
+        while (str_token.at(str_token.size() - 1) == ' ') {
+            str_token.resize(str_token.size() - 1);
         }
 
         // uppercase UNLESS this is an include directive
-        if ( str_tag_type != tag_type_prefix + "INCLUDE" ) {
+        if (str_tag_type != tag_type_prefix + "INCLUDE") {
             uc(str_token);
         }
 
@@ -1498,21 +1498,21 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
 #endif
 
         // if this is a tag type
-        if ( tag_strings_c.find( str_token ) != tag_strings_c.end() ) {
+        if (tag_strings_c.find(str_token) != tag_strings_c.end()) {
             str_tag_type = str_token;
         }
 
         // if there was a previous token, pair this one up and see what we get
-        if ( str_last_token.size() ) {
+        if (str_last_token.size()) {
 #ifdef DEBUG3
             cout << "last token: (" << str_last_token << ")" << endl;
 #endif
 
             // if that was a tag type
-            if ( tag_strings_c.find( str_last_token ) != tag_strings_c.end() ) {
+            if (tag_strings_c.find(str_last_token) != tag_strings_c.end()) {
                 str_tag_type = str_last_token;
 
-                if ( reserved_words_c.find( str_token ) == reserved_words_c.end() ) {
+                if (reserved_words_c.find(str_token) == reserved_words_c.end()) {
                     str_value = str_token;
 #ifdef DEBUG2
                     cout << "setting name to: " << str_value << endl;
@@ -1521,7 +1521,7 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
             }
 
             // if the last token is an escape keyword
-            if ( str_last_token == "ESCAPE" || str_last_token == "ESC" ) {
+            if (str_last_token == "ESCAPE" || str_last_token == "ESC") {
                 str_escape_mode = str_token;
 #ifdef DEBUG2
                 cout << "escape found: " << str_escape_mode << endl;
@@ -1529,7 +1529,7 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
             }
 
             // if the last token is NAME
-            if ( str_last_token == "NAME" ) {
+            if (str_last_token == "NAME") {
                 str_value = str_token;
 #ifdef DEBUG2
                 cout << "setting name to: " << str_value << endl;
@@ -1537,9 +1537,9 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
             }
 
             // if the last tag token was a termination token
-            if ( str_last_token == "/" ) {
+            if (str_last_token == "/") {
                 // this MUST be a tag type
-                if ( tag_strings_c.find( str_token ) == tag_strings_c.end() ) {
+                if (tag_strings_c.find(str_token) == tag_strings_c.end()) {
                     throw std::runtime_error("Improper tag termination");
                 }
 
@@ -1554,10 +1554,10 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
         str_last_token = str_token;
 
         // skip to next unprocessed character
-        n += ( token_stop - n );
+        n += (token_stop - n);
     }
 
-    if ( str_value.empty() && str_last_token != "/" && str_tag_type != tag_type_prefix + "ELSE" ) {
+    if (str_value.empty() && str_last_token != "/" && str_tag_type != tag_type_prefix + "ELSE") {
         str_value = str_last_token;
 #ifdef DEBUG2
         cout << "name still empty - using last token as name: " << str_value << endl;
@@ -1565,8 +1565,8 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
     }
 
     // simple unnamed tags like <ELSE>
-    if ( !b_termination_tag && (str_tag_type.size() && !str_value.size()) ) {
-        tag.Set_Is_Splitter( true );
+    if (!b_termination_tag && (str_tag_type.size() && !str_value.size())) {
+        tag.Set_Is_Splitter(true);
     }
 
     // we know what the tag type is as a STRING, but we have to convert it into
@@ -1579,32 +1579,32 @@ const tag_s html_template::parse_tag( const std::string & arg ) const {
 
         // if this matches the string tag type that we parsed out, this tag_s structure
         // is what we want
-        if ( str_tag_type == (tag_type_prefix + tag_type.str_tag_type) ) {
-            tag.Set_Tag_Type( tag_type );
+        if (str_tag_type == (tag_type_prefix + tag_type.str_tag_type)) {
+            tag.Set_Tag_Type(tag_type);
         }
     }
 
     // set tag name if any
-    if ( str_value.size() ) {
-        tag.Set_Name( str_value );
+    if (str_value.size()) {
+        tag.Set_Name(str_value);
     }
 
     // set termination flag if true
-    if ( b_termination_tag ) {
-        tag.Set_Is_Termination( b_termination_tag );
+    if (b_termination_tag) {
+        tag.Set_Is_Termination(b_termination_tag);
     }
 
     // set escape mode if any
-    if ( str_escape_mode.size() ) {
+    if (str_escape_mode.size()) {
         // make sure it's a valid escape
-        if ( str_escape_mode == "JS" || str_escape_mode == "JAVASCRIPT" ) {
-            tag.Set_Escape_Mode( ESC_JS );
-        } else if ( str_escape_mode == "HTML" || str_escape_mode == "XML" ) {
-            tag.Set_Escape_Mode( ESC_HTML );
-        } else if ( str_escape_mode == "URL" ) {
-            tag.Set_Escape_Mode( ESC_URL );
+        if (str_escape_mode == "JS" || str_escape_mode == "JAVASCRIPT") {
+            tag.Set_Escape_Mode(ESC_JS);
+        } else if (str_escape_mode == "HTML" || str_escape_mode == "XML") {
+            tag.Set_Escape_Mode(ESC_HTML);
+        } else if (str_escape_mode == "URL") {
+            tag.Set_Escape_Mode(ESC_URL);
         } else {
-            throw std::runtime_error("Escape mode '" + str_escape_mode + "' is not supported" );
+            throw std::runtime_error("Escape mode '" + str_escape_mode + "' is not supported");
         }
     }
 
@@ -1620,7 +1620,7 @@ html_template::get_line_from_pos(const size_t & ui_pos) const {
         const size_t ui_line = itr_line->first;
         std::pair<size_t,size_t> line_boundary = itr_line->second;
 
-        if ( ui_pos >= line_boundary.first && ui_pos <= line_boundary.second ) {
+        if (ui_pos >= line_boundary.first && ui_pos <= line_boundary.second) {
             return ui_line;
         }
     }
@@ -1640,45 +1640,45 @@ void html_template::shift_tags(const std::string & str_in,
 
     block_map_t::iterator itr_block = r_block_map.begin();
 
-    for ( ; itr_block != r_block_map.end(); ++itr_block ) {
+    for (; itr_block != r_block_map.end(); ++itr_block) {
         itr_block->Shift(i_offset, ui_start, ui_end);
     }
 }
 //----------------------------------------------------------------------------
 
-void html_template::escape_var( std::string & arg, const en_escape_mode escape_mode ) {
-    if ( escape_mode == ESC_NONE ) return;
+void html_template::escape_var(std::string & arg, const en_escape_mode escape_mode) {
+    if (escape_mode == ESC_NONE) return;
 
-    if ( escape_mode == ESC_HTML ) {
-        search_replace( arg, "&", "&amp;" );
-        search_replace( arg, "\"", "&quot;" );
-        search_replace( arg, "'", "&#39" );
-        search_replace( arg, "<", "&lt;" );
-        search_replace( arg, ">", "&gt;" );
+    if (escape_mode == ESC_HTML) {
+        search_replace(arg, "&", "&amp;");
+        search_replace(arg, "\"", "&quot;");
+        search_replace(arg, "'", "&#39");
+        search_replace(arg, "<", "&lt;");
+        search_replace(arg, ">", "&gt;");
     }
 
-    if ( escape_mode == ESC_JS ) {
-        search_replace( arg, "\\", "\\\\" );
-        search_replace( arg, "'", "\\'" );
-        search_replace( arg, "\"", "\\\"" );
-        search_replace( arg, "\n", "\\n" );
-        search_replace( arg, "\r", "\\r" );
+    if (escape_mode == ESC_JS) {
+        search_replace(arg, "\\", "\\\\");
+        search_replace(arg, "'", "\\'");
+        search_replace(arg, "\"", "\\\"");
+        search_replace(arg, "\n", "\\n");
+        search_replace(arg, "\r", "\\r");
     }
 
-    if ( escape_mode == ESC_URL ) {
-        arg = rfc1738_encode( arg );
+    if (escape_mode == ESC_URL) {
+        arg = rfc1738_encode(arg);
     }
 }
 //----------------------------------------------------------------------------
 
-void html_template::throw_exception( syntax_ex & ex ) const {
+void html_template::throw_exception(syntax_ex & ex) const {
     // add any extra data and rethrow
     ex.template_path = str_tmpl_file_name;
     throw ex;
 }
 //----------------------------------------------------------------------------
 
-void html_template::throw_exception( runtime_ex & ex ) const {
+void html_template::throw_exception(runtime_ex & ex) const {
     // add any extra data and rethrow
     ex.template_path = str_tmpl_file_name;
     throw ex;
@@ -1704,7 +1704,7 @@ cls_variable & cls_variable::operator= (const loop_s & arg_table) {
 }
 //----------------------------------------------------------------------------
 const std::string cls_variable::Get_Val_String() const {
-    if ( table.Get_Rows().empty() ) {
+    if (table.Get_Rows().empty()) {
         return "";
     }
 
@@ -1713,7 +1713,7 @@ const std::string cls_variable::Get_Val_String() const {
 
     // could not find the cell, so this a table with not single value, and
     // cannot be converted to string
-    if ( itr_cell == itr_row->cells_c.end() ) {
+    if (itr_cell == itr_row->cells_c.end()) {
         return "";
     }
 
@@ -1727,12 +1727,12 @@ bool loop_s::Empty() const {
       An empty loop is a one that has at least one row and if the row is NOT a
       single value (has key of "")
     */
-    if ( rows_c.empty() ) {
+    if (rows_c.empty()) {
         return true;
     }
 
     // not empty if over one row - we know it's not a single value
-    if ( rows_c.size() > 1 ) {
+    if (rows_c.size() > 1) {
         return false;
     }
 
@@ -1742,7 +1742,7 @@ bool loop_s::Empty() const {
     loop_s::rows_t::const_iterator itr_row = rows_c.begin();
 
     row_s::cells_t::const_iterator itr_cell = itr_row->cells_c.find("");
-    return !(rows_c.size() && itr_cell == itr_row->cells_c.end() );
+    return !(rows_c.size() && itr_cell == itr_row->cells_c.end());
 }
 //----------------------------------------------------------------------------
 
@@ -1759,7 +1759,7 @@ void uc(std::string & str) {
 //-----------------------------------------------------------------------
 
 char char_toupper(char ch) {
-    return toupper( static_cast<unsigned char>(ch) );
+    return toupper(static_cast<unsigned char>(ch));
 }
 //-----------------------------------------------------------------------
 
@@ -1783,9 +1783,9 @@ const string::size_type find_no_case(const std::string & str_src,
                                      begin, str_src.end(),
                                      str_find.begin(), str_find.end(),
                                      bin_predicate_search_nocase
-                                 );
+                                );
 
-    if ( itr != str_src.end() ) {
+    if (itr != str_src.end()) {
         pos = std::distance(str_src.begin(), itr); // get the zero-based index
     }
 
@@ -1839,14 +1839,14 @@ std::string trim_string(const std::string & str, const std::string & characters 
 
 void search_replace(std::string & str_src, const std::string& str_to_find,
                     const std::string & str_replace) {
-    if ( !str_src.length() )     return;
+    if (!str_src.length())     return;
 
-    if ( !str_to_find.length() ) return;
+    if (!str_to_find.length()) return;
 
     string::size_type find_pos  = str_src.find(str_to_find, 0);
 
-    while ( find_pos != string::npos ) {
-        str_src.replace( find_pos, str_to_find.length(), str_replace );
+    while (find_pos != string::npos) {
+        str_src.replace(find_pos, str_to_find.length(), str_replace);
         find_pos += str_replace.length();
         // go again
         find_pos = str_src.find(str_to_find, find_pos);
