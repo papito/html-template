@@ -18,6 +18,13 @@
    specific language governing permissions and limitations
    under the License.
  **********************************************************************/
+
+/*
+ * Copyright (C) 2014 James Higley
+ 
+   Changed from std:string to std:wstring
+*/
+
 #ifndef html_template_h
 #define html_template_h
 
@@ -33,6 +40,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <assert.h>
+#include <codecvt>
 
 /*!\mainpage
   C++ port of Sam Tregar's Perl HTML::Template. This does NOT have
@@ -58,56 +66,77 @@ enum en_escape_mode {ESC_NONE, ESC_JS, ESC_HTML, ESC_URL};
 
 //! Definition of all valid characters in a variable name. Note that anything
 // goes for TMPL_INCLUDE
-static const std::string str_valid_chars =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.-0123456789";
+static const std::wstring str_valid_chars =
+    L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.-0123456789";
 
 //----------------------------------------------------------------------------
 // utilities
 //----------------------------------------------------------------------------
 //! upper case string helper
-void uc(std::string & str);
+void uc(std::wstring & str);
 //! upper case string helper
-char char_toupper(char ch);
+wchar_t char_toupper(wchar_t ch);
 
 //! predicate for searching strings ignoring case
-bool bin_predicate_search_nocase(char ch1, char ch2);
+bool bin_predicate_search_nocase(wchar_t ch1, wchar_t ch2);
 
 //! search a string ignoring case
-const std::string::size_type find_no_case(
-    const std::string & str_src, const std::string & str_find, const size_t start_pos
+const std::wstring::size_type find_no_case(
+    const std::wstring & str_src, const std::wstring & str_find, const size_t start_pos
 );
 
 //! determine file dir from path
-const std::string file_directory(const std::string & str_path);
+const std::wstring file_directory(const std::wstring & str_path);
 
 //! trim string
-std::string trim_string(const std::string & str, const std::string & characters = " \t\n\r");
+std::wstring trim_string(const std::wstring & str, const std::wstring & characters = L" \t\n\r");
 
 //! search/replace string by reference
-void search_replace(std::string & str_src, const std::string & str_to_find,
-                    const std::string & str_replace);
+void search_replace(std::wstring & str_src, const std::wstring & str_to_find,
+                    const std::wstring & str_replace);
 
 //! escape a URL
-const std::string rfc1738_encode(const std::string & src);
+const std::wstring rfc1738_encode(const std::wstring & src);
 
 //----------------------------------------------------------------------------
 // exceptions
 //----------------------------------------------------------------------------
+class wruntime_error : public std::runtime_error {
+public:
+    //! ctructor
+    wruntime_error(const std::wstring & str_what) : std::runtime_error("") {
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+        str = cv.to_bytes(str_what);
+    }
+
+    //! dtructor
+    virtual ~wruntime_error() {}
+
+    //! virtual override function what
+    _EXCEPTION_INLINE virtual const char * __CLR_OR_THIS_CALL what() const
+    {
+        return str.c_str();
+    }
+private:
+    //! narrow error message for function what
+    std::string str;
+};
+
 //! template syntax exception class
-class syntax_ex : public std::runtime_error {
+class syntax_ex : public wruntime_error {
 public:
     //! path to template that caused the error
-    std::string template_path;
+    std::wstring template_path;
 
     //! problem line
     size_t line;
     //! error detail
-    std::string detail;
+    std::wstring detail;
 
     //! ctructor
-    syntax_ex(const std::string & str_what) :
-        std::runtime_error(str_what) {
-        detail = "";
+    syntax_ex(const std::wstring & str_what) :
+        wruntime_error(str_what) {
+        detail = L"";
         line   = 0;
     }
 
@@ -117,14 +146,14 @@ public:
 //---------------------------------------------------------------------------
 
 //! template runtime exception class
-class runtime_ex : public std::runtime_error {
+class runtime_ex : public wruntime_error {
 public:
     //! path to template that caused the error
-    std::string template_path;
+    std::wstring template_path;
 
     //! ctructor
-    runtime_ex(const std::string & str_what) : std::runtime_error(str_what) {
-        template_path = "";
+    runtime_ex(const std::wstring & str_what) : wruntime_error(str_what) {
+        template_path = L"";
     }
 
     //!dtructor
@@ -137,9 +166,9 @@ public:
 //! tag type struct - defines one of the supported tags
 struct tag_type_s {
 //! tag type class - general tag class
-    std::string str_tag_class;
+    std::wstring str_tag_class;
 //! specific tag typy (IF, LOOP, etc.)
-    std::string str_tag_type;
+    std::wstring str_tag_type;
 //! flag that marks if this is a block tag (has open and close)
     bool b_block_tag;
 
@@ -147,8 +176,8 @@ struct tag_type_s {
     tag_type_s();
 
 //! non-default ctructor that assigns class and type in one whack
-    tag_type_s(const std::string & arg_type,
-               const std::string & arg_class,
+    tag_type_s(const std::wstring & arg_type,
+               const std::wstring & arg_class,
                bool arg_block_tag = false);
 
 //! returns TRUE if the tag is declared but not defined
@@ -174,7 +203,7 @@ private:
     //! tag type object - tells us what tag this is
     tag_type_s tag_type;
     //! tag name
-    std::string str_name;
+    std::wstring str_name;
     //! beginning of the tag in text
     size_t begin;
     //! end of the tag in text
@@ -198,7 +227,7 @@ public:
         return tag_type;
     }
     //! return tag name as defined in template
-    const std::string Get_Name() const {
+    const std::wstring Get_Name() const {
         return str_name;
     }
     //! get begin position
@@ -244,7 +273,7 @@ public:
         tag_type = arg;
     }
     //! assign a name
-    void Set_Name(const std::string & arg) {
+    void Set_Name(const std::wstring & arg) {
         str_name = arg;
     }
     //! set termination flag
@@ -302,7 +331,7 @@ public:
     block_s(const tag_s & arg_open);
 
     //! get block name (name of opening tag)
-    const std::string Get_Name() const {
+    const std::wstring Get_Name() const {
         return tag_open.Get_Name();
     }
     //! get block escape mode (escape mode of opening tag)
@@ -344,7 +373,7 @@ public:
 
     void Delete() {
 #ifdef DEBUG
-        std::cout << "Deleting block " << this->Get_Name() << std::endl;
+        std::wcout << L"Deleting block " << this->Get_Name() << std::endl;
 #endif
 
         b_deleted = true;
@@ -361,7 +390,7 @@ public:
 
     //! find out if this block has a split tag, such as ELSE
     bool Has_Split_Tag() const {
-        return tag_split.Start() != std::string::npos;
+        return tag_split.Start() != std::wstring::npos;
     }
 
     //! see if this block contains another block
@@ -416,7 +445,7 @@ class loop_s;
 //! table cell object
 struct row_cell_s {
 //! string value for the cell
-    std::string str_val;
+    std::wstring str_val;
 //! pointer to the nested table (if any)
     loop_s * p_table;
 
@@ -428,10 +457,10 @@ struct row_cell_s {
     row_cell_s(const row_cell_s & cpy);
 
 //! template for assigning all sorts of values to a cell, converting
-//everything to std::string
+//everything to std::wstring
     template <class T>
     row_cell_s & operator= (const T & arg) {
-        std::ostringstream buffer;
+        std::wostringstream buffer;
         buffer << arg;
         str_val = buffer.str();
         return *this;
@@ -449,12 +478,12 @@ typedef loop_s loop_t;
 //! table row object
 struct row_s {
 //! type of cell container
-    typedef std::map <std::string, row_cell_s> cells_t;
+    typedef std::map <std::wstring, row_cell_s> cells_t;
 //! cell container
     cells_t cells_c;
 
 //! assign table cell op
-    row_cell_s & operator() (const std::string & str_name);
+    row_cell_s & operator() (const std::wstring & str_name);
 
 //! clear row contents
     void Clear() {
@@ -508,23 +537,23 @@ public:
     //! default ctructor
     cls_variable() {}
     //! ctructor wich assigns variable name
-    cls_variable(const std::string & arg_var_name);
+    cls_variable(const std::wstring & arg_var_name);
     //! dtructor
     virtual ~cls_variable() {}
 
-    //! Assign any type of data, converting it to std::string
+    //! Assign any type of data, converting it to std::wstring
     /* Note that there
      * is no string data member that stores the value. The data is ultimately
      * stored in the first cell of the member table.
     */
     template <class T>
     cls_variable & operator= (const T & arg_var_val) {
-        std::ostringstream buffer;
+        std::wostringstream buffer;
         buffer << arg_var_val;
         // create table row object
         row_s row;
         // store the string value as the cell with empty key
-        row.cells_c[""] = buffer.str();
+        row.cells_c[L""] = buffer.str();
         // add the row to the member table
         table += row;
         // return the variable
@@ -535,13 +564,13 @@ public:
     cls_variable & operator= (const loop_s & arg_table);
 
     //! pull name of the variable
-    const std::string Get_Name() const {
+    const std::wstring Get_Name() const {
         return str_name;
     }
 
     //! get the value stored in this variable, assuming it's a single string
     // value
-    const std::string Get_Val_String() const;
+    const std::wstring Get_Val_String() const;
     //! get the value stored in this variable, assuming it's a table.
     const loop_s & Get_Val_Table() const;
 
@@ -553,7 +582,7 @@ private:
     */
     loop_s table;
     //! variable name - this the name that is expected in template body
-    mutable std::string str_name;
+    mutable std::wstring str_name;
 };
 
 //----------------------------------------------------------------------------
@@ -562,11 +591,11 @@ private:
 //! template object
 class html_template {
 //! type of tag type container
-    typedef std::map <std::string, tag_type_s> tag_types_t;
+    typedef std::map <std::wstring, tag_type_s> tag_types_t;
 //! type of full tag string container
-    typedef std::map <std::string, unsigned short> tag_strings_t;
+    typedef std::map <std::wstring, unsigned short> tag_strings_t;
 //! type of variable container
-    typedef std::map <std::string, cls_variable> variables_t;
+    typedef std::map <std::wstring, cls_variable> variables_t;
 //! type of tag map container
     typedef std::set <tag_s> tag_map_t;
 //! type of block map container
@@ -580,11 +609,11 @@ class html_template {
 
 private:
     //! template file name
-    std::string str_tmpl_file_name;
+    std::wstring str_tmpl_file_name;
     //! template body as loaded from file (cannot be changed)
-    mutable std::string str_tmpl_txt;
+    mutable std::wstring str_tmpl_txt;
     //! copy of template body, for modifying
-    std::string str_tmpl_txt_cpy;
+    std::wstring str_tmpl_txt_cpy;
 
     //! container of high-level tag types
     tag_types_t tag_types_c;
@@ -596,7 +625,7 @@ private:
     tag_strings_t reserved_words_c;
 
     //! constant string that stores the prefix of a template tag
-    mutable std::string tag_type_prefix;
+    mutable std::wstring tag_type_prefix;
 
     //! variables container
     variables_t variables_c;
@@ -634,10 +663,10 @@ private:
     tag_s find_tag() const;
 
     //! truncate spaces, relatives of spaces and anything resembling spaces, for easier parsing
-    const std::string truncate(const std::string & arg) const;
+    const std::wstring truncate(const std::wstring & arg) const;
     //! Parse, validate and return a standard tag name.
     // The internally used format is <TMPL_TYPE VALUE>
-    const tag_s parse_tag( const std::string & arg ) const;
+    const tag_s parse_tag( const std::wstring & arg ) const;
 
     //! Shift tag positions in the template.
     /* This does not have to be done on the whole template.
@@ -653,11 +682,11 @@ private:
      *    position to stop shifting tags at;
      */
     void shift_tags(
-        const std::string & str_in,
+        const std::wstring & str_in,
         block_map_t & r_block_map,
         const ptrdiff_t i_offset,
         const size_t ui_start,
-        size_t ui_end = std::string::npos
+        size_t ui_end = std::wstring::npos
     );
 
     //! delete blocks between giver start and close tags
@@ -672,7 +701,7 @@ private:
     //! figure out the offset to shift other tags by.
     const ptrdiff_t get_offset(
         const size_t ui_block_len,
-        const std::string & r_str
+        const std::wstring & r_str
     ) const;
 
     //! evaluate a variable
@@ -681,7 +710,7 @@ private:
     //! process a repeating block
     void process_loop(
         const block_s & block,
-        std::string & str_text,
+        std::wstring & str_text,
         block_map_t & r_block_map,
         variables_t & r_variables_c
     );
@@ -689,26 +718,26 @@ private:
     //! process simple varaibles
     void process_simple_vars(
         block_map_t & r_block_map,
-        std::string & str_text,
+        std::wstring & str_text,
         variables_t & r_variables_c
     );
 
     //! process IF/UNLESS blocks
     void process_conditionals(
         block_map_t & r_block_map,
-        std::string & str_text,
+        std::wstring & str_text,
         variables_t & r_variables_c
     );
 
     //! process loop blocks
     void process_loops(
         block_map_t & r_block_map,
-        std::string & str_text,
+        std::wstring & str_text,
         variables_t & r_variables_c
     );
 
     //! process escape directives
-    void escape_var( std::string & arg, const en_escape_mode );
+    void escape_var( std::wstring & arg, const en_escape_mode );
 
     //! throw an exception (after adding more detail to it)
     void throw_exception( syntax_ex & ex ) const;
@@ -719,22 +748,22 @@ public:
     //! ctructor
     html_template();
     //! ctructor that loads the template
-    html_template(const std::string & arg_file_name);
+    html_template(const std::wstring & arg_file_name);
     //! dtructor
     virtual ~html_template();
 
     //! assign template file if none was given at first. This loads the file as
     //well
-    void Set_Template_File(const std::string & arg_file_name);
+    void Set_Template_File(const std::wstring & arg_file_name);
 
     //! assign a variable to the template
-    cls_variable & operator() (const std::string & arg_var_name);
+    cls_variable & operator() (const std::wstring & arg_var_name);
 
     //! process the template, return generated string
-    const std::string & Process();
+    const std::wstring & Process();
 
     //! print template output to stream
-    friend std::ostream & operator << (std::ostream & out, html_template & obj) {
+    friend std::wostream & operator << (std::wostream & out, html_template & obj) {
         out << obj.Process();
         return out;
     }
