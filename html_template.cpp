@@ -29,6 +29,7 @@
 #define html_template_c
 #include "html_template.h"
 #endif
+#include <cstring>
 
 using namespace std;
 
@@ -315,8 +316,22 @@ void html_template::Set_Template_File(const std::wstring & arg_file_name) {
 //----------------------------------------------------------------------------
 
 const std::wstring & html_template::Process() {
+    std::string file_name;
+    size_t len = str_tmpl_file_name.length();
+    if (len > 0)
+    {
+        char* w = new char[len + 1];
+        size_t s = wcstombs(w, str_tmpl_file_name.c_str(), len);
+        if (s != len)
+            w[0] = 0;
+        else
+            w[s] = 0;
+        file_name = std::string(w);
+        delete[] w;
+    }
+
     std::wifstream in_stream;
-    in_stream.open(str_tmpl_file_name.c_str(), ios::binary);
+    in_stream.open(file_name, ios::binary);
 
     if(!in_stream.is_open()) {
         runtime_ex ex(L"Could not open template file");
@@ -579,8 +594,22 @@ void html_template::expand_includes() {
             str_file_name = str_parent_tmpl_dir + str_file_name;
         }
 
+        std::string file_name;
+        size_t len = str_file_name.length();
+        if (len > 0)
+        {
+            char* w = new char[len + 1];
+            size_t s = wcstombs(w, str_file_name.c_str(), len);
+            if (s != len)
+                w[0] = 0;
+            else
+                w[s] = 0;
+            file_name = std::string(w);
+            delete[] w;
+        }
+
         std::wifstream in_stream;
-        in_stream.open(str_file_name.c_str());
+        in_stream.open(file_name);
 
         if(!in_stream.is_open()) {
             runtime_ex ex(L"Could not open file for reading");
@@ -1399,8 +1428,19 @@ tag_s html_template::find_tag() const {
         tag = parse_tag(str_compl_tag);
     } catch (std::exception & ex) {
         syntax_ex error(L"Malformed tag");
-        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
-        error.detail = cv.from_bytes(ex.what());
+        const char* c = ex.what();
+        size_t len = strlen(c) / sizeof(char);
+        if (len > 0)
+        {
+            wchar_t* w = new wchar_t[len + 1];
+            size_t s = mbstowcs(w, c, len);
+            if (s != len)
+                w[0] = 0;
+            else
+                w[s] = 0;
+            error.detail = std::wstring(w);
+            delete[] w;
+        }
         error.line =  get_line_from_pos(pos_tag_open);
         throw_exception(error);
     }

@@ -40,7 +40,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <assert.h>
-#include <codecvt>
+#include <cstddef>
 
 /*!\mainpage
   C++ port of Sam Tregar's Perl HTML::Template. This does NOT have
@@ -105,15 +105,22 @@ class wruntime_error : public std::runtime_error {
 public:
     //! ctructor
     wruntime_error(const std::wstring & str_what) : std::runtime_error("") {
-        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
-        str = cv.to_bytes(str_what);
+        size_t len = str_what.length();
+        if (len > 0)
+        {
+            char* w = new char[len + 1];
+            size_t s = wcstombs(w, str_what.c_str(), len);
+            if (s != len)
+                w[0] = 0;
+            else
+                w[s] = 0;
+            str = std::string(w);
+            delete[] w;
+        }
     }
 
-    //! dtructor
-    virtual ~wruntime_error() {}
-
     //! virtual override function what
-    _EXCEPTION_INLINE virtual const char * __CLR_OR_THIS_CALL what() const
+    virtual const char * what() const throw()
     {
         return str.c_str();
     }
