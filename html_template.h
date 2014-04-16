@@ -119,6 +119,9 @@ public:
         }
     }
 
+    //!dtructor
+    virtual ~wruntime_error() throw() {}
+
     //! virtual override function what
     virtual const char * what() const throw()
     {
@@ -148,7 +151,7 @@ public:
     }
 
     //! dtructor
-    ~syntax_ex() throw() {}
+    virtual ~syntax_ex() throw() {}
 };
 //---------------------------------------------------------------------------
 
@@ -164,7 +167,7 @@ public:
     }
 
     //!dtructor
-    ~runtime_ex() throw() {}
+    virtual ~runtime_ex() throw() {}
 };
 
 //----------------------------------------------------------------------------
