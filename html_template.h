@@ -135,9 +135,6 @@ private:
 //! template syntax exception class
 class syntax_ex : public wruntime_error {
 public:
-    //! path to template that caused the error
-    std::wstring template_path;
-
     //! problem line
     size_t line;
     //! error detail
@@ -158,12 +155,8 @@ public:
 //! template runtime exception class
 class runtime_ex : public wruntime_error {
 public:
-    //! path to template that caused the error
-    std::wstring template_path;
-
     //! ctructor
     runtime_ex(const std::wstring & str_what) : wruntime_error(str_what) {
-        template_path = L"";
     }
 
     //!dtructor
@@ -618,8 +611,6 @@ class html_template {
     typedef std::map < size_t, std::pair<size_t,size_t> > line_map_t;
 
 private:
-    //! template file name
-    std::wstring str_tmpl_file_name;
     //! template body as loaded from file (cannot be changed)
     mutable std::wstring str_tmpl_txt;
     //! copy of template body, for modifying
@@ -650,8 +641,6 @@ private:
     //! initialize class constants (NOTE, it's not a RESET)
     void init();
 
-    //! expand external template includes
-    void expand_includes();
     //! builds line map
     void build_line_map();
     //! builds tag map
@@ -758,13 +747,12 @@ public:
     //! ctructor
     html_template();
     //! ctructor that loads the template
-    html_template(const std::wstring & arg_file_name);
+    html_template(const std::wstring & arg_template);
     //! dtructor
     virtual ~html_template();
 
-    //! assign template file if none was given at first. This loads the file as
-    //well
-    void Set_Template_File(const std::wstring & arg_file_name);
+    //! assign template if none was given at first.
+    void Set_Template(const std::wstring& arg_template);
 
     //! assign a variable to the template
     cls_variable & operator() (const std::wstring & arg_var_name);

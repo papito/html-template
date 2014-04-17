@@ -295,58 +295,21 @@ html_template::html_template() {
 }
 //----------------------------------------------------------------------------
 
-html_template::html_template(const std::wstring & arg_file_name) {
+html_template::html_template(const std::wstring & arg_template): str_tmpl_txt(arg_template) {
     tag_type_prefix = L"TMPL_";
     init();
-    Set_Template_File(arg_file_name);
 }
+
 //----------------------------------------------------------------------------
 
-void html_template::Set_Template_File(const std::wstring & arg_file_name) {
-    str_tmpl_file_name = arg_file_name;
-
-    if (arg_file_name.empty()) {
-        throw("Template file name not specified");
-    }
-
-#ifdef DEBUG
-    wcout << L"\n!!!!!!!!!!!!!!!\ntemplate " << str_tmpl_file_name << L" loaded" << endl;
-#endif
+void html_template::Set_Template(const std::wstring & arg_template) {
+    this->str_tmpl_txt = arg_template;
 }
 //----------------------------------------------------------------------------
 
 const std::wstring & html_template::Process() {
-    std::string file_name;
-    size_t len = str_tmpl_file_name.length();
-    if (len > 0)
-    {
-        char* w = new char[len + 1];
-        size_t s = wcstombs(w, str_tmpl_file_name.c_str(), len);
-        if (s != len)
-            w[0] = 0;
-        else
-            w[s] = 0;
-        file_name = std::string(w);
-        delete[] w;
-    }
-
-    std::wifstream in_stream;
-    in_stream.open(file_name, ios::binary);
-
-    if(!in_stream.is_open()) {
-        runtime_ex ex(L"Could not open template file");
-        throw_exception(ex);
-    }
-
-    // read in the file
-    std::wstringstream oss;
-    oss << in_stream.rdbuf();
-    str_tmpl_txt = oss.str();
-    in_stream.close();
-
-    // this will expand the include files, and build the map of all the variables -
-    // once if there are no includes or (1 + # of includes)
-    expand_includes();
+    // this will build the map of all the variables -
+    build_block_map();
 
     str_tmpl_txt_cpy = str_tmpl_txt;
 
@@ -486,9 +449,6 @@ void html_template::print_tag_map() {
 //----------------------------------------------------------------------------
 
 html_template::~html_template() {
-#ifdef DEBUG
-    wcout << L"template " << str_tmpl_file_name << L" destroyed" << endl;
-#endif
 }
 //----------------------------------------------------------------------------
 
@@ -536,7 +496,6 @@ void html_template::init() {
     tag_types_c[L"IF"]      = tag_type_s(L"IF",      L"IF",   true);
     tag_types_c[L"ELSE"]    = tag_type_s(L"ELSE",    L"IF");
     tag_types_c[L"UNLESS"]  = tag_type_s(L"UNLESS",  L"IF",   true);
-    tag_types_c[L"INCLUDE"] = tag_type_s(L"INCLUDE", L"INCLUDE");
 
     // create the tag strings we expect to see in a document, based on the tag
     // types
@@ -559,98 +518,6 @@ void html_template::init() {
     reserved_words_c[ L"XML" ]        = 1;
 }
 
-//----------------------------------------------------------------------------
-
-void html_template::expand_includes() {
-    build_block_map();
-
-    // block iterator
-    block_map_t::const_iterator itr_block;
-
-    itr_block = block_map.begin();
-
-    unsigned short ush_processed_includes = 0;
-
-    for (; itr_block != block_map.end(); ++itr_block) {
-        if (itr_block->Get_Type() != tag_types_c[L"INCLUDE"]) continue;
-
-        if (itr_block->Deleted())                            continue;
-
-        // increment count
-        ++ush_processed_includes;
-
-        // read in the file contents
-        wstring str_file_name = itr_block->Get_Name();
-
-
-        // the file may have either absolute or relative path. If relative, combine
-        // it with the path of the parent file
-        if (str_file_name.find_first_of(L"\\/", 0, 1) == wstring::npos) {
-            // this file is relative to main template location
-
-            // get the main template dir
-            const wstring str_parent_tmpl_dir = file_directory(str_tmpl_file_name);
-
-            str_file_name = str_parent_tmpl_dir + str_file_name;
-        }
-
-        std::string file_name;
-        size_t len = str_file_name.length();
-        if (len > 0)
-        {
-            char* w = new char[len + 1];
-            size_t s = wcstombs(w, str_file_name.c_str(), len);
-            if (s != len)
-                w[0] = 0;
-            else
-                w[s] = 0;
-            file_name = std::string(w);
-            delete[] w;
-        }
-
-        std::wifstream in_stream;
-        in_stream.open(file_name);
-
-        if(!in_stream.is_open()) {
-            runtime_ex ex(L"Could not open file for reading");
-            throw_exception(ex);
-        }
-
-        // read in the file
-        std::wstringstream oss;
-        oss << in_stream.rdbuf();
-        const wstring str_replace_with = oss.str();
-
-        in_stream.close();
-
-        const size_t block_len = itr_block->Get_Open_Tag().Stop()
-                                 - itr_block->Get_Open_Tag().Start()
-                                 + 1;
-
-        const ptrdiff_t i_offset = get_offset(block_len, str_replace_with);
-
-        // shift tags in rest of document
-
-        shift_tags(
-            str_tmpl_txt, block_map, i_offset,
-            itr_block->Get_Open_Tag().Stop()
-       );
-
-        str_tmpl_txt.replace(
-            itr_block->Get_Open_Tag().Start(),
-            block_len,
-            str_replace_with
-       );
-    }
-
-    // recurse if any tags were processed
-    if (ush_processed_includes) {
-        expand_includes(); // RECURSION
-    }
-
-    // no need to build the map again - if there was at least one include, the
-    // map would be rebuilt by the recursive call
-}
 //----------------------------------------------------------------------------
 
 void html_template::process_conditionals(block_map_t & r_block_map,
@@ -1281,13 +1148,6 @@ void html_template::build_block_map() {
             continue;
         }
 
-        // add include tags and bail out
-        if (itr_tag->Get_Tag_Type() == tag_types_c[L"INCLUDE"]) {
-            block_s block(*itr_tag);
-            block_map.push_back(block);
-            continue;
-        }
-
         block_s block;
 
         // if this is an opening for a block tag
@@ -1535,11 +1395,6 @@ const tag_s html_template::parse_tag(const std::wstring & arg) const {
             str_token.resize(str_token.size() - 1);
         }
 
-        // uppercase UNLESS this is an include directive
-        if (str_tag_type != tag_type_prefix + L"INCLUDE") {
-            uc(str_token);
-        }
-
 #ifdef DEBUG3
         wcout << L"current token: (" << str_token << L")" << endl;
 #endif
@@ -1720,14 +1575,12 @@ void html_template::escape_var(std::wstring & arg, const en_escape_mode escape_m
 
 void html_template::throw_exception(syntax_ex & ex) const {
     // add any extra data and rethrow
-    ex.template_path = str_tmpl_file_name;
     throw ex;
 }
 //----------------------------------------------------------------------------
 
 void html_template::throw_exception(runtime_ex & ex) const {
     // add any extra data and rethrow
-    ex.template_path = str_tmpl_file_name;
     throw ex;
 }
 

@@ -50,7 +50,7 @@ void test(const tests_t & tests_c, const wstring& str_test_name) {
             templ.Set_Template_File( t.str_file );
             str_template_output = templ.Process();
         } catch (tmpl::syntax_ex & ex) {
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > cv;
             if (t.str_error_to_catch == cv.from_bytes(ex.what())) {
                 wcout << L".";
                 continue;
@@ -62,7 +62,7 @@ void test(const tests_t & tests_c, const wstring& str_test_name) {
 
         // if there is an error to catch - we didn't catch it
         if ( t.str_error_to_catch.length() ) {
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > cv;
             throw(string("Uncaught error: '") + cv.to_bytes(t.str_error_to_catch).c_str() + "'");
         }
 
@@ -72,7 +72,7 @@ void test(const tests_t & tests_c, const wstring& str_test_name) {
         in_stream.open(str_ref_file_path.c_str());
 
         if( !in_stream.is_open() ) {
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > cv;
             throw(string("Could not open reference test file '")
                   + cv.to_bytes(str_ref_file_path).c_str()
                   + "'. All tests aborted");
@@ -277,13 +277,13 @@ military service.\"" ;
         }
         // if creating a single test
         else if (argc == 3 && strcmp(argv[1], "create") == 0) {
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > cv;
             wstring str_tmpl_file = cv.from_bytes(argv[2]);
             create( str_tmpl_file );
         }
         // if running a single test
         else if (argc == 3 && strcmp(argv[1], "run") == 0) {
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > cv;
             wstring str_tmpl_file = cv.from_bytes(argv[2]);
             tests_t single_test;
             single_test.push_back( test_s(str_tmpl_file) );
@@ -292,11 +292,11 @@ military service.\"" ;
             run();
         }
     } catch (tmpl::runtime_ex & ex) {
-        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > cv;
         wcout << L"\nCGI TEMPLATE ERROR: " << cv.from_bytes(ex.what()) << L"\n";
         wcout << L"CGI TEMPLATE FILE: " << ex.template_path << L"\n";
     } catch (tmpl::syntax_ex & ex) {
-        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cv;
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > cv;
         wcout << L"\nSYNTAX ERROR: " << cv.from_bytes(ex.what()) << L"\n";
         wcout << L"LINE: " << ex.line << L"\n";
         wcout << L"DETAIL: " << ex.detail << L"\n";
